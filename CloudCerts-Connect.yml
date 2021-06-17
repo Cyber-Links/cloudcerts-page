@@ -1,0 +1,244 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://example.com:8080'
+    description: CloudCerts Connect API
+info:
+  version: 1.0.0
+  title: CloudCerts Connect
+  description: For issuing CloudCerts and checking issuance status.
+tags:
+  - name: issuing process
+paths:
+  '/certificates/{issuerID}':
+    post:
+      tags:
+        - issuing process
+      summary: Issuing the blockchain certificate
+      description: |-
+        Endpoint for issuing certificates.
+        It accepts requests as either JSON or FormData.
+      parameters:
+        - name: issuerID
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                html_template:
+                  type: object
+                  description: |
+                    HTML template for generating visual images of each certificate.
+                    Content type depends on parameter "html_template_type".
+                  properties:
+                    value:
+                      type: string
+                      example: <h1>Hello it's certificate</h1>
+                    type:
+                      type: string
+                      enum:
+                        - string
+                        - link
+                        - storage
+                        - image
+                      description: |
+                        Defines the content type of "html_template" parameter.
+                        - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
+                        - `link`: Seding a public link of HTML template. ex) "http://example.com/path/to/index.html"
+                        - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
+                        - `image`: Sending image instead of html.
+                        **default**: `storage`
+                certificate_data:
+                  type: array
+                  description: |
+                    Data for each certificate, some personal data and HTML template variables.             
+                  items:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: Example username 1
+                      email:
+                        type: string
+                        example: example@lastrust.io
+                      label:
+                        type: string
+                        description: Label on CloudCerts Manager
+                        example: Diploma 2020
+                      console_id:
+                        type: string
+                        description: Identifier on CloudCerts Manager
+                        example: '12212121'
+                      template_data:
+                        type: object
+                        description: 'Variables for changing HTML visual, depends on HTML templates'
+                        additionalProperties:
+                          type: string
+                save_pdf:
+                  type: boolean
+                  description: Set this option if you want to download the issued certs as PDF.
+                  example: true
+                chain:
+                  type: string
+                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
+                  example: ethereum_ropsten
+                group_name:
+                  type: string
+                  description: Name for issuing process
+                  example: Test group name
+                deferred:
+                  type: boolean
+                  description: |
+                    The flag for postponing the signing process of the certificates.  
+                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
+                    _Postponed signing processes are executed as a batch process once a day_
+                  example: true
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                html_template:
+                  type: string
+                  format: binary
+                  description: |
+                    HTML template for generating visual images of each certificate.
+                    Content type depends on parameter "html_template_type".
+                  example: 'http://example.com or <h1>Some HTML</h1> or storage/key/foo/bar'
+                html_template_type:
+                  type: string
+                  enum:
+                    - string
+                    - link
+                    - storage
+                    - image
+                  description: |
+                    Defines the content type of "html_template" parameter.
+                    - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
+                    - `link`: Seding a public link of HTML template. ex) "http://example.com/path/to/index.html"
+                    - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
+                    - `image`: Sending image instead of html.
+                    **default**: `string`
+                certs_data:
+                  description: |
+                    Data of each certificate with roster, some personal data and HTML template variables.
+                    Content type depends on parameter "certs_data_type".
+                    CSV structure:
+                    [name, pubkey, identity, certificate_title, criteria_narrative, console_id, <html-template-variables>]
+                    **HTML template variables REQUIRED PASCALCASE**(similar to camelCase, but first letter is uppercase)!
+                  type: string
+                  format: binary
+                  example: FormData file or key of cloud storage
+                certs_data_type:
+                  description: |
+                    Defines the content type of "certs_data" parameter.
+                    - `file`: Sending csv file.
+                    - `storage`: Sending the key of cloud storage storing csv file.
+                    *default*: `file`
+                  type: string
+                  enum:
+                    - file
+                    - storage
+                save_pdf:
+                  description: Set this option if you want to download the issued certs as PDF.
+                  type: boolean
+                chain:
+                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
+                  type: string
+                  enum:
+                    - bitcoin_regtest
+                    - bitcoin_testnet
+                    - bitcoin_mainnet
+                    - ethereum_ropsten
+                    - ethereum_mainnet
+                    - mockchain
+                group_name:
+                  description: Name for issuing process
+                  type: string
+                deferred:
+                  description: |
+                    The flag for postponing the signing process of the certificates.  
+                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
+                    _Postponed signing processes are executed as a batch process once a day_
+                  type: boolean
+      responses:
+        '200':
+          description: Successfully request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  issuer_id:
+                    type: string
+                    format: uuid
+                    example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                  process_id:
+                    type: string
+                    format: uuid
+                    example: e10687c2-4305-43bd-a355-8bd07d26cc95
+  '/issuers/{issuerID}/processes/{processID}':
+    get:
+      tags:
+        - issuing process
+      summary: get issuing process status
+      parameters:
+        - name: issuerID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: processID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: issuing process status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  issuer_id:
+                    type: string
+                    format: uuid
+                    example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                  process_id:
+                    type: string
+                    format: uuid
+                    example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                  certificates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cert_id:
+                          type: string
+                          format: uuid
+                          example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                        status:
+                          type: string
+                          description: status
+                          example: Success
+                          enum:
+                            - Not issued
+                            - Success
+                            - Deferred
+                            - Failed
+                        url:
+                          type: string
+                          example: 'https://cloudcerts.io/viewer/issuers/<issuerID>/certs/<certID>'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: Access token for API
+security:
+  - Bearer: []

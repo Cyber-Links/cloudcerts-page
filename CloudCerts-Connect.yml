@@ -94,7 +94,7 @@ paths:
                 deferred:
                   type: boolean
                   description: |
-                    The flag for postponing the signing process of the certificates.  
+                    Flag for postponing the signing process of the certificates.  
                     Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
                     _Postponed signing processes are executed as a batch process once a day_
                   example: true
@@ -161,7 +161,7 @@ paths:
                   type: string
                 deferred:
                   description: |
-                    The flag for postponing the signing process of the certificates.  
+                    Flag for postponing the signing process of the certificates.  
                     Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
                     _Postponed signing processes are executed as a batch process once a day_
                   type: boolean

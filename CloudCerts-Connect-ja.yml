@@ -5,18 +5,18 @@ servers:
 info:
   version: 1.0.0
   title: CloudCerts Connect
-  description: For issuing CloudCerts and checking issuance status.
+  description: CloudCertの発行と発行状況の確認用。
 tags:
-  - name: issuing process
+  - name: 発行プロセス
 paths:
   '/certificates/{issuerID}':
     post:
       tags:
-        - issuing process
-      summary: Issuing the blockchain certificate
+        - 発行プロセス
+      summary: ブロックチェーン証明書を発行。
       description: |-
-        Endpoint for issuing certificates.
-        It accepts requests as either JSON or FormData.
+        証明書を発行するエンドポイント。
+        JSONまたはFormDataのいずれかでリクエストを許可します。
       parameters:
         - name: issuerID
           in: path
@@ -33,8 +33,8 @@ paths:
                 html_template:
                   type: object
                   description: |
-                    HTML template for generating visual images of each certificate.
-                    Content type depends on parameter "html_template_type".
+                    各証明書のビジュアルイメージを生成するためのHTMLテンプレート。
+                    コンテンツタイプはパラメータの"html_template_type"に依存します。
                   properties:
                     value:
                       type: string
@@ -47,16 +47,16 @@ paths:
                         - storage
                         - image
                       description: |
-                        Defines the content type of "html_template" parameter.
-                        - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
-                        - `link`: Sending a public link of HTML template. ex) "http://example.com/path/to/index.html"
-                        - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
-                        - `image`: Sending image instead of html.
-                        **default**: `storage`
+                        "html_template"パラメータのコンテンツタイプを定義。
+                        - `string`: HTMLコンテンツを文字列として送信する。 例) "\<h1>Some HTML\</h1>"
+                        - `link`: HTMLテンプレートのパブリックリンクを送信する。 例) "http://example.com/path/to/index.html"
+                        - `storage`: HTMLテンプレートを保存するクラウドストレージの鍵を保存する。 例) "storage/<key-name>"
+                        - `image`: HTMLの代わりに画像を送信する。
+                        **デフォルト**: `storage`
                 certificate_data:
                   type: array
                   description: |
-                    Data for each certificate, some personal data and HTML template variables.             
+                    各証明書のデータ、一部の個人データ、HTMLテンプレートの変数。
                   items:
                     type: object
                     properties:
@@ -68,35 +68,35 @@ paths:
                         example: example@lastrust.io
                       label:
                         type: string
-                        description: Label on CloudCerts Manager
+                        description: CloudCerts Manager上のラベル。
                         example: Diploma 2020
                       console_id:
                         type: string
-                        description: Identifier on CloudCerts Manager
+                        description: CloudCerts Manager上の識別子。
                         example: '12212121'
                       template_data:
                         type: object
-                        description: 'Variables for changing HTML visual, depends on HTML templates'
+                        description: HTMLのビジュアルを変更するための変数で、HTMLテンプレートに依存。
                         additionalProperties:
                           type: string
                 save_pdf:
                   type: boolean
-                  description: Set this option if you want to download the issued certs as PDF.
+                  description: 発行された証明書をPDFでダウンロードしたい場合は、このオプションを設定します。
                   example: true
                 chain:
                   type: string
-                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
+                  description: 発行プロセスに使用されるチェーン。 (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
                   example: ethereum_ropsten
                 group_name:
                   type: string
-                  description: Name for issuing process
+                  description: 発行プロセスの名前。
                   example: Test group name
                 deferred:
                   type: boolean
                   description: |
-                    Flag for postponing the signing process of the certificates.  
-                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
-                    _Postponed signing processes are executed as a batch process once a day_
+                    証明書の署名処理を延期するためのフラグ。
+                    証明書ビュー（HTML、PDF、QR-code）が作成され、CloudStorageに保存されます。
+                    延期された署名プロセスは、1日1回、バッチプロセスとして実行されます。
                   example: true
           multipart/form-data:
             schema:
@@ -106,8 +106,8 @@ paths:
                   type: string
                   format: binary
                   description: |
-                    HTML template for generating visual images of each certificate.
-                    Content type depends on parameter "html_template_type".
+                    各証明書のビジュアルイメージを生成するためのHTMLテンプレート。
+                    コンテンツタイプはパラメータ"html_template_type"に依存します。
                   example: 'http://example.com or <h1>Some HTML</h1> or storage/key/foo/bar'
                 html_template_type:
                   type: string
@@ -117,37 +117,37 @@ paths:
                     - storage
                     - image
                   description: |
-                    Defines the content type of "html_template" parameter.
-                    - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
-                    - `link`: Seding a public link of HTML template. ex) "http://example.com/path/to/index.html"
-                    - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
-                    - `image`: Sending image instead of html.
-                    **default**: `string`
+                    "html_template"パラメータのコンテンツタイプを定義する。
+                    - `string`: HTMLコンテンツを文字列として送信する。 例) "\<h1>Some HTML\</h1>"
+                    - `link`: HTMLテンプレートのパブリックリンクを送信する。 例) "http://example.com/path/to/index.html"
+                    - `storage`: HTMLテンプレートを保存するクラウドストレージの鍵を保存する。 例) "storage/<key-name>"
+                    - `image`: HTMLの代わりに画像を送信する。
+                    **デフォルト**: `string`
                 certs_data:
                   description: |
-                    Data of each certificate with roster, some personal data and HTML template variables.
-                    Content type depends on parameter "certs_data_type".
-                    CSV structure:
+                    各証明書のデータには、名簿、一部の個人情報、HTMLテンプレート変数が含まれています。
+                    コンテンツタイプは、パラメータ "certs_data_type"に依存します。
+                    CSVの構造:
                     [name, pubkey, identity, certificate_title, criteria_narrative, console_id, <html-template-variables>]
-                    **HTML template variables REQUIRED PASCALCASE**(similar to camelCase, but first letter is uppercase)!
+                    **HTMLテンプレート変数はパスカルケースです**(camelCaseに似ていますが、最初の文字は大文字です)
                   type: string
                   format: binary
                   example: FormData file or key of cloud storage
                 certs_data_type:
                   description: |
-                    Defines the content type of "certs_data" parameter.
-                    - `file`: Sending csv file.
-                    - `storage`: Sending the key of cloud storage storing csv file.
-                    **default**: `file`
+                    "certs_data"パラメータのコンテンツタイプを定義します。
+                    - `file`: csvファイルを送信する。
+                    - `storage`: csvファイルを保存しているクラウドストレージの鍵を送信する。
+                    **デフォルト**: `file`
                   type: string
                   enum:
                     - file
                     - storage
                 save_pdf:
-                  description: Set this option if you want to download the issued certs as PDF.
+                  description: 発行された証明書をPDFでダウンロードしたい場合は、このオプションを設定します。
                   type: boolean
                 chain:
-                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
+                  description: 発行プロセスに使用されるチェーンです。 (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
                   type: string
                   enum:
                     - bitcoin_regtest
@@ -157,17 +157,17 @@ paths:
                     - ethereum_mainnet
                     - mockchain
                 group_name:
-                  description: Name for issuing process
+                  description: 発行プロセスの名前
                   type: string
                 deferred:
                   description: |
-                    Flag for postponing the signing process of the certificates.  
-                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
-                    _Postponed signing processes are executed as a batch process once a day_
+                    証明書の署名処理を延期するためのフラグ。
+                    証明書ビュー（HTML、PDF、QR-code）が作成され、CloudStorageに保存されます。
+                    延期された署名プロセスは、1日1回、バッチプロセスとして実行されます。
                   type: boolean
       responses:
         '200':
-          description: Successfully request
+          description: リクエストに成功
           content:
             application/json:
               schema:
@@ -184,8 +184,8 @@ paths:
   '/issuers/{issuerID}/processes/{processID}':
     get:
       tags:
-        - issuing process
-      summary: get issuing process status
+        - 発行プロセス
+      summary: 発行プロセスのステータスを取得。
       parameters:
         - name: issuerID
           in: path
@@ -199,7 +199,7 @@ paths:
             type: string
       responses:
         '200':
-          description: issuing process status
+          description: 発行プロセスのステータス。
           content:
             application/json:
               schema:

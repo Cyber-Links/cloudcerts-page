@@ -1,58 +1,75 @@
 openapi: 3.0.0
-servers:
-  - url: 'https://example.com:8080'
-    description: CloudCerts Connect API
 info:
   version: 1.0.0
   title: CloudCerts Connect
-  description: For issuing CloudCerts and checking issuance status.
+  description: Service provides the methods for handling blockchain certificates
+servers:
+  - url: 'https://example.com:8080'
+    description: CloudCerts Connect API
 tags:
   - name: issuing process
 paths:
-  '/certificates/{issuerID}':
+  /certificates/{issuerID}:
     post:
       tags:
         - issuing process
-      summary: Issuing the blockchain certificate
-      description: |-
-        Endpoint for issuing certificates.
-        It accepts requests as either JSON or FormData.
+      summary: Issue blockchain certificates.
       parameters:
         - name: issuerID
           in: path
           required: true
           schema:
             type: string
+            format: uuid
+            example: c5021f0c-1a98-4d3f-bf08-09b2799c5e00
       requestBody:
         required: true
         content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                html_template:
+                  $ref: '#/components/schemas/htmlTemplate'
+                html_template_type:
+                  $ref: '#/components/schemas/htmlTemplateType'
+                certs_data:
+                  description: |
+                    Data of each certificate with roster, some personal data and HTML template variables.<br>
+                    Depends on `certs_data_type` FormData field.<br>
+                    CSV structure: <br>
+                    [name, email, console_id, label, <html-template-variables>]<br>
+                    **HTML template variables REQUIRED PASCALCASE**(similar to camelCase, but first letter is uppercase)!
+                  type: string
+                  format: binary
+                  example: FormData file or key of cloud storage
+                certs_data_type:
+                  description: |
+                    Defines the content type of "certs_data" parameter.
+                    - `file`: Sending csv file.
+                    - `storage`: Sending the key of cloud storage storing csv file.
+                    *default*: `file`
+                  type: string
+                  enum: [ file, storage ]
+                save_pdf:
+                  $ref: '#/components/schemas/savePdf'
+                chain:
+                  $ref: '#/components/schemas/chain'
+                group_name:
+                  $ref: '#/components/schemas/groupName'
+                deferred:
+                  $ref: '#/components/schemas/deferred'
           application/json:
             schema:
               type: object
               properties:
                 html_template:
                   type: object
-                  description: |
-                    HTML template for generating visual images of each certificate.
-                    Content type depends on parameter "html_template_type".
                   properties:
                     value:
-                      type: string
-                      example: <h1>Hello it's certificate</h1>
+                      $ref: '#/components/schemas/htmlTemplate'
                     type:
-                      type: string
-                      enum:
-                        - string
-                        - link
-                        - storage
-                        - image
-                      description: |
-                        Defines the content type of "html_template" parameter.
-                        - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
-                        - `link`: Sending a public link of HTML template. ex) "http://example.com/path/to/index.html"
-                        - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
-                        - `image`: Sending image instead of html.
-                        **default**: `storage`
+                      $ref: '#/components/schemas/htmlTemplateType'
                 certificate_data:
                   type: array
                   description: |
@@ -79,94 +96,18 @@ paths:
                         description: 'Variables for changing HTML visual, depends on HTML templates'
                         additionalProperties:
                           type: string
+                        example:
+                          Name: Example User Name
                 save_pdf:
-                  type: boolean
-                  description: Set this option if you want to download the issued certs as PDF.
-                  example: true
+                  $ref: '#/components/schemas/savePdf'
                 chain:
-                  type: string
-                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
-                  example: ethereum_ropsten
+                  $ref: '#/components/schemas/chain'
                 group_name:
-                  type: string
-                  description: Name for issuing process
-                  example: Test group name
+                  $ref: '#/components/schemas/groupName'
                 deferred:
-                  type: boolean
-                  description: |
-                    Flag for postponing the signing process of the certificates.  
-                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
-                    _Postponed signing processes are executed as a batch process once a day_
-                  example: true
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                html_template:
-                  type: string
-                  format: binary
-                  description: |
-                    HTML template for generating visual images of each certificate.
-                    Content type depends on parameter "html_template_type".
-                  example: 'http://example.com or <h1>Some HTML</h1> or storage/key/foo/bar'
-                html_template_type:
-                  type: string
-                  enum:
-                    - string
-                    - link
-                    - storage
-                    - image
-                  description: |
-                    Defines the content type of "html_template" parameter.
-                    - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
-                    - `link`: Seding a public link of HTML template. ex) "http://example.com/path/to/index.html"
-                    - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
-                    - `image`: Sending image instead of html.
-                    **default**: `string`
-                certs_data:
-                  description: |
-                    Data of each certificate with roster, some personal data and HTML template variables.
-                    Content type depends on parameter "certs_data_type".
-                    CSV structure:
-                    [name, pubkey, identity, certificate_title, criteria_narrative, console_id, <html-template-variables>]
-                    **HTML template variables REQUIRED PASCALCASE**(similar to camelCase, but first letter is uppercase)!
-                  type: string
-                  format: binary
-                  example: FormData file or key of cloud storage
-                certs_data_type:
-                  description: |
-                    Defines the content type of "certs_data" parameter.
-                    - `file`: Sending csv file.
-                    - `storage`: Sending the key of cloud storage storing csv file.
-                    **default**: `file`
-                  type: string
-                  enum:
-                    - file
-                    - storage
-                save_pdf:
-                  description: Set this option if you want to download the issued certs as PDF.
-                  type: boolean
-                chain:
-                  description: Chain that will be used for issuing process. (bitcoin_regtest|bitcoin_testnet|bitcoin_mainnet|ethereum_ropsten|ethereum_mainnet|mockchain)
-                  type: string
-                  enum:
-                    - bitcoin_regtest
-                    - bitcoin_testnet
-                    - bitcoin_mainnet
-                    - ethereum_ropsten
-                    - ethereum_mainnet
-                    - mockchain
-                group_name:
-                  description: Name for issuing process
-                  type: string
-                deferred:
-                  description: |
-                    Flag for postponing the signing process of the certificates.  
-                    Certificate views (HTML, PDF, QR-code) will be created and stored to CloudStorage.  
-                    _Postponed signing processes are executed as a batch process once a day_
-                  type: boolean
+                  $ref: '#/components/schemas/deferred'
       responses:
-        '200':
+        200:
           description: Successfully request
           content:
             application/json:
@@ -181,11 +122,80 @@ paths:
                     type: string
                     format: uuid
                     example: e10687c2-4305-43bd-a355-8bd07d26cc95
-  '/issuers/{issuerID}/processes/{processID}':
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "issuerID is not a UUID string"
+
+  /issuers:
+    post:
+      tags:
+        - issuing process
+      summary: Fetching issuer list.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: Common password of application for fetching issuer list.
+                  example: secret
+      responses:
+        200:
+          description: Successfully request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  code:
+                    type: number
+                    format: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      issuers:
+                        type: array
+                        items:
+                          type: string
+                          example: "c5021f0c-1a98-4d3f-bf08-09b2799c5e00"
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                empty password:
+                  value:
+                    ok: false
+                    code: 400
+                    error: password cannot be blank
+                wrong password:
+                  value:
+                    ok: false
+                    code: 400
+                    error: password is wrong
+
+
+  /issuers/{issuerID}/processes/{processID}:
     get:
       tags:
         - issuing process
-      summary: get issuing process status
+      summary: Get issuing process status.
       parameters:
         - name: issuerID
           in: path
@@ -198,7 +208,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: issuing process status
           content:
             application/json:
@@ -218,7 +228,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        cert_id:
+                        certificate_id:
                           type: string
                           format: uuid
                           example: e10687c2-4305-43bd-a355-8bd07d26cc95
@@ -233,12 +243,72 @@ paths:
                             - Failed
                         url:
                           type: string
-                          example: 'https://cloudcerts.io/viewer/issuers/<issuerID>/certs/<certID>'
+                          example: https://cloudcerts.io/viewer/issuers/<issuerID>/certs/<certID>
+
 components:
+  schemas:
+    ErrorResponse:
+      properties:
+        ok:
+          type: boolean
+          example: false
+        code:
+          type: number
+          format: integer
+          example: 400
+        error:
+          type: string
+          example: error description
+
+    htmlTemplate:
+      type: string
+      format: binary
+      description: |
+        HTML certificate display template.
+        Depends on the `html_template.type` JSON property or `html_template_type` FormData field.
+      example: "<h1>Hello, {{.Name}}! This is a certificate!</h1>"
+
+    htmlTemplateType:
+      type: string
+      enum: [ string, link, storage, image ]
+      description: |
+        Defines the content type of "html_template" parameter.
+        - `string`: Sending HTML content as string. ex) "\<h1>Some HTML\</h1>"
+        - `link`: Seding a public link of HTML template. ex) "http://example.com/path/to/index.html"
+        - `storage`: Sending the key of cloud storage storing HTML template. ex) "storage/<key-name>"
+        - `image`: Sending image instead of html. **Available only for multipart body!** <br>
+        **default**: `storage`
+      example: "string"
+
+    savePdf:
+      description: |
+        Flag for saving PDF documents of issued blockchain certificates.<br>
+        Set this flag to true if you want to download PDF on the CC Viewer.
+      type: boolean
+
+    chain:
+      description: Blockchain network that will be used in issuing process.
+      type: string
+      enum: [ ethereum_ropsten, ethereum_mainnet ]
+      example: ethereum_ropsten
+
+    groupName:
+      description: Name of issuing process
+      type: string
+      example: Test group name
+
+    deferred:
+      description: |
+        Flag for postpone the signing of the certificate<br>
+        Will be created views (HTML, PDF, QR-code) for all recipients<br>
+        _Signing deferred processes occurs once a day_
+      type: boolean
+
   securitySchemes:
     Bearer:
       type: http
       scheme: bearer
       description: Access token for API
+
 security:
   - Bearer: []

@@ -260,31 +260,31 @@ components:
           type: string
           example: エラーの説明
 
-  htmlTemplate:
-      type: string
-      format: binary
-      description: |
-        HTML証明書テンプレート。
-        `html_template.type`、JSONプロパティまたは`html_template_type`のFormDataフィールドに依存します。
-      example: "<h1>Hello, {{.Name}}! This is a certificate!</h1>"
+    htmlTemplate:
+        type: string
+        format: binary
+        description: |
+          HTML証明書テンプレート。
+          `html_template.type`、JSONプロパティまたは`html_template_type`のFormDataフィールドに依存します。
+        example: "<h1>Hello, {{.Name}}! This is a certificate!</h1>"
 
-  htmlTemplateType:
-      type: string
-      enum: [ string, link, storage, image ]
-      description: |
-        "html_template"パラメータのコンテンツタイプを定義する。
-        - `string`: HTMLコンテンツを文字列として送信する。 例) "\<h1>Some HTML\</h1>"
-        - `link`: HTMLテンプレートのパブリックリンクを送信する。 例) "http://example.com/path/to/index.html"
-        - `storage`: HTMLテンプレートを保存するクラウドストレージの鍵を保存する。 例) "storage/<key-name>"
-        - `image`: HTMLの代わりに画像を送信する。
-        **default**: `storage`
-      example: "string"
+    htmlTemplateType:
+        type: string
+        enum: [ string, link, storage, image ]
+        description: |
+          "html_template"パラメータのコンテンツタイプを定義する。
+          - `string`: HTMLコンテンツを文字列として送信する。 例) "\<h1>Some HTML\</h1>"
+          - `link`: HTMLテンプレートのパブリックリンクを送信する。 例) "http://example.com/path/to/index.html"
+          - `storage`: HTMLテンプレートを保存するクラウドストレージの鍵を保存する。 例) "storage/<key-name>"
+          - `image`: HTMLの代わりに画像を送信する。
+          **default**: `storage`
+        example: "string"
 
-  savePdf:
-      description: |
-        発行されたブロックチェーン証明書のPDF文書を保存するためのフラグ。<br>
-        CC ViewerでPDFをダウンロードしたい場合は、このフラグをtrueに設定してください。
-      type: boolean
+    savePdf:
+        description: |
+          発行されたブロックチェーン証明書のPDF文書を保存するためのフラグ。<br>
+          CC ViewerでPDFをダウンロードしたい場合は、このフラグをtrueに設定してください。
+        type: boolean
 
     chain:
       description: 発行プロセスで使用されるブロックチェーンネットワーク。

@@ -134,21 +134,17 @@ paths:
                     example: "issuerID is not a UUID string"
 
   /issuers:
-    post:
+    get:
       tags:
         - issuing process
       summary: Fetching issuer list.
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  description: Common password of application for fetching issuer list.
-                  example: secret
+      parameters:
+        - in: header
+          name: X-PASSWORD
+          description: Common password of application for fetching issuer list.
+          schema:
+            type: string
+            example: secret
       responses:
         200:
           description: Successfully request
@@ -232,6 +228,9 @@ paths:
                           type: string
                           format: uuid
                           example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                        console_id:
+                          type: string
+                          example: 20210805001
                         status:
                           type: string
                           description: status

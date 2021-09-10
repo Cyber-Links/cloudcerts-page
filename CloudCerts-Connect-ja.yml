@@ -134,21 +134,17 @@ paths:
                     example: "issuerIDがUUID文字列でない。"
 
   /issuers:
-    post:
+    get:
       tags:
         - issuing process
       summary: 発行者リストの取得。
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  description: 発行者リストを取得するためのパスワードです。
-                  example: secret
+      parameters:
+        - in: header
+          name: X-PASSWORD
+          description: 発行者リストを取得するためのパスワードです。
+          schema:
+            type: string
+            example: secret
       responses:
         200:
           description: リクエストに成功
@@ -232,6 +228,9 @@ paths:
                           type: string
                           format: uuid
                           example: e10687c2-4305-43bd-a355-8bd07d26cc95
+                        console_id:
+                          type: string
+                          example: 20210805001
                         status:
                           type: string
                           description: status
